@@ -1,3 +1,5 @@
+import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -8,10 +10,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        brightness: Brightness.dark,
         primarySwatch: Colors.blue,
       ),
-      home: DoublePendulum(
-        animationDuration: Duration(seconds: 15),
+      home: Scaffold(
+        body: DoublePendulum(
+          animationDuration: Duration(seconds: 1),
+        ),
       ),
     );
   }
@@ -28,77 +33,183 @@ class DoublePendulum extends StatefulWidget {
 class _DoublePendulumState extends State<DoublePendulum>
     with SingleTickerProviderStateMixin {
   AnimationController _animationController;
-  Animation<double> offsetanimation;
-  double value;
-  PendulumManager pendulumManager;
-
+  PendulumSimulationManager pendulumManager;
+  final _formKey = GlobalKey<FormState>();
+  double noOfPendulums = 5;
+  double gravity = 9.8;
+  double pendulum1Length = 100;
+  double pendulum2Length = 100;
+  double pendulum1Mass = 6;
+  double pendulum2Mass = 3;
   @override
   void initState() {
     super.initState();
 
     // Initializing the animation controller with a defined duraion.
-    _animationController =
-        AnimationController(vsync: this, duration: widget.animationDuration);
-    offsetanimation =
-        Tween<double>(begin: -100, end: 100).animate(_animationController);
-    offsetanimation.addListener(() {
-      setState(() {
-        value = offsetanimation.value;
-      });
-    });
-    pendulumManager = PendulumManager.withParams(
-        origin: Offset(500, 500), noOfDoublePendulums: 1);
-    print('init completed');
-    _animationController.forward();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: widget.animationDuration,
+    )..repeat();
   }
 
   @override
   Widget build(BuildContext context) {
-    pendulumManager.reEstimatePostions();
+    pendulumManager = PendulumSimulationManager(
+      noOfDoublePendulums: noOfPendulums,
+      gravity: gravity / 60,
+      pendulum1Length: pendulum1Length,
+      pendulum1Mass: pendulum1Mass,
+      pendulum2Length: pendulum2Length,
+      pendulum2Mass: pendulum2Mass,
+    );
+    pendulumManager.initializePendulums();
 
-    return CustomPaint(
-      painter: DoublePendulumPainter(pendulumPaintInfos: pendulumManager),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Transform.translate(
+          offset: Offset(0, pendulum1Length + pendulum2Length),
+          child: AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, _) {
+              pendulumManager.reEstimateAngles();
+              return CustomPaint(
+                painter:
+                    DoublePendulumPainter(pendulumPaintInfos: pendulumManager),
+              );
+            },
+          ),
+        ),
+        Spacer(),
+        FloatingActionButton(onPressed: () {
+          showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Text('Double Pendulums : ' +
+                          noOfPendulums.toStringAsFixed(0)),
+                      Slider(
+                          divisions: 50,
+                          label: noOfPendulums.toStringAsFixed(0),
+                          value: noOfPendulums,
+                          min: 1,
+                          max: 50,
+                          onChanged: (value) {
+                            setState(() {
+                              noOfPendulums = value;
+                            });
+                          }),
+                      Text('Gravity : ' + gravity.toStringAsFixed(1)),
+                      Slider(
+                          label: gravity.toStringAsFixed(1),
+                          value: gravity,
+                          min: 1,
+                          max: 50,
+                          onChanged: (value) {
+                            setState(() {
+                              gravity = value;
+                            });
+                          }),
+                      Text('Pendulum1 length : ' +
+                          pendulum1Length.toStringAsFixed(1)),
+                      Slider(
+                          label: pendulum1Length.toStringAsFixed(1),
+                          value: pendulum1Length,
+                          min: 1,
+                          max: 500,
+                          onChanged: (value) {
+                            setState(() {
+                              pendulum1Length = value;
+                            });
+                          }),
+                      Text('Pendulum1 mass : ' +
+                          pendulum1Mass.toStringAsFixed(1)),
+                      Slider(
+                          label: pendulum1Mass.toStringAsFixed(1),
+                          value: pendulum1Mass,
+                          min: 0.1,
+                          max: 100,
+                          onChanged: (value) {
+                            setState(() {
+                              pendulum1Mass = value;
+                            });
+                          }),
+                      Text('Pendulum2 length : ' +
+                          pendulum2Length.toStringAsFixed(1)),
+                      Slider(
+                          label: pendulum2Length.toStringAsFixed(1),
+                          value: pendulum2Length,
+                          min: 1,
+                          max: 500,
+                          onChanged: (value) {
+                            setState(() {
+                              pendulum2Length = value;
+                            });
+                          }),
+                      Text('Pendulum2 mass : ' +
+                          pendulum2Mass.toStringAsFixed(1)),
+                      Slider(
+                          label: pendulum2Mass.toStringAsFixed(1),
+                          value: pendulum2Mass,
+                          min: 0.1,
+                          max: 100,
+                          onChanged: (value) {
+                            setState(() {
+                              pendulum2Mass = value;
+                            });
+                          }),
+                    ],
+                  ),
+                );
+              });
+        })
+      ],
     );
   }
 }
 
-final pendulum1Paint = Paint()
-  ..color = Colors.amber
-  ..strokeWidth = 1.0;
-final pendulum1MassPaint = Paint()
-  ..color = Colors.black
-  ..strokeWidth = 1.0;
-final pendulum2Paint = Paint()
-  ..color = Colors.blueAccent
-  ..style = PaintingStyle.fill;
+final pendulumPaint = Paint()..strokeWidth = 4.0;
 final pendulum2MassPaint = Paint()
   ..color = Colors.red
   ..style = PaintingStyle.fill;
+Paint _trailPaint = Paint()
+  ..strokeWidth = 0.5
+  ..color = Colors.white;
 
 class DoublePendulumPainter extends CustomPainter {
-  final PendulumManager pendulumPaintInfos;
+  final PendulumSimulationManager pendulumPaintInfos;
 
   DoublePendulumPainter({this.pendulumPaintInfos});
 
   @override
   void paint(Canvas canvas, Size size) {
-    print('length id ${pendulumPaintInfos.allDoublePendulums}');
+    // Trasnslate to the middle of the screen.
+    canvas.translate(
+        pendulumPaintInfos.origin.dx, pendulumPaintInfos.origin.dy);
     pendulumPaintInfos.allDoublePendulums
-        .forEach((List<PendulumDrawInfo> pendulumPaintInfo) {
-      print('inside for each ${pendulumPaintInfo[0]}');
+        .forEach((List<PendulumInfo> pendulumPaintInfo) {
       // Draws the line for pendulum 1
-      canvas.drawLine(pendulumPaintInfo[0].origin, pendulumPaintInfo[0].end,
-          pendulum1Paint);
+      canvas.drawLine(
+          pendulumPaintInfo[0].origin,
+          pendulumPaintInfo[0].endPoint,
+          pendulumPaint..color = pendulumPaintInfo[0].paintColor);
       // draws the bob for the first pendulum
-      canvas.drawCircle(pendulumPaintInfo[0].end, pendulumPaintInfo[0].radius,
-          pendulum1MassPaint);
-      print('inside for each ${pendulumPaintInfo[1]}');
-      // Draws the line for pendulum 1
-      canvas.drawLine(pendulumPaintInfo[1].origin, pendulumPaintInfo[1].end,
-          pendulum2Paint);
-      // draws the bob for the first pendulum
-      canvas.drawCircle(pendulumPaintInfo[1].end, pendulumPaintInfo[1].radius,
-          pendulum2MassPaint);
+      canvas.drawCircle(pendulumPaintInfo[0].endPoint,
+          pendulumPaintInfo[0].mass, pendulumPaint);
+      // Draws the line for pendulum 2
+      canvas.drawLine(
+          pendulumPaintInfo[1].origin,
+          pendulumPaintInfo[1].endPoint,
+          pendulumPaint..color = pendulumPaintInfo[1].paintColor);
+      // draws the bob for the second pendulum
+      canvas.drawCircle(pendulumPaintInfo[1].endPoint,
+          pendulumPaintInfo[1].mass, pendulumPaint);
+      canvas.drawPoints(
+          PointMode.lines, pendulumPaintInfo[1].trailPoints, _trailPaint);
     });
   }
 
@@ -108,73 +219,123 @@ class DoublePendulumPainter extends CustomPainter {
   }
 }
 
-class PendulumManager {
+class PendulumSimulationManager {
   double noOfDoublePendulums;
-  double pendulum1Length = 10;
-  double pendulum2Length = 10;
-  double pendulum1Mass = 5;
-  double pendulum2Mass = 5;
+  double pendulum1Length;
+  double pendulum2Length;
+  double pendulum1Mass;
+  double pendulum2Mass;
   Offset origin;
-  double temp = 0;
+  double gravity;
 
-  List<List<PendulumDrawInfo>> allDoublePendulums = [];
+  List<List<PendulumInfo>> allDoublePendulums = [];
 
-  PendulumManager._(
-      {this.allDoublePendulums,
-      this.origin,
-      this.noOfDoublePendulums,
-      this.pendulum1Length,
-      this.pendulum1Mass,
-      this.pendulum2Length,
-      this.pendulum2Mass});
+  PendulumSimulationManager(
+      {this.origin = Offset.zero,
+      @required this.noOfDoublePendulums,
+      @required this.gravity,
+      this.pendulum1Length = 200,
+      this.pendulum1Mass = 6,
+      this.pendulum2Length = 200,
+      this.pendulum2Mass = 3});
 
-  factory PendulumManager.withParams(
-      {@required origin,
-      @required noOfDoublePendulums,
-      pendulum1Length,
-      pendulum1Mass,
-      pendulum2Length,
-      pendulum2Mass}) {
-    List<List<PendulumDrawInfo>> allDoublePendulums = [];
+  void initializePendulums() {
     for (int i = 0; i < noOfDoublePendulums; i++) {
-      Offset p1End = origin + Offset(0, pendulum1Length ?? 100);
-      Offset p2End = p1End + Offset(0, pendulum2Length ?? 100);
-      final newList = <PendulumDrawInfo>[
-        PendulumDrawInfo(origin, p1End, pendulum1Mass ?? 10),
-        PendulumDrawInfo(p1End, p2End, pendulum2Mass ?? 10)
-      ];
-      print('newList Created $newList');
-      allDoublePendulums.add(newList);
+      PendulumInfo pendulum1 = PendulumInfo(
+        angle: (pi / 2),
+        length: pendulum1Length,
+        mass: pendulum1Mass,
+        origin: Offset.zero,
+        vel: (i / 10000),
+        acc: 0,
+      );
+      PendulumInfo pendulum2 = PendulumInfo(
+        angle: (pi / 4),
+        length: pendulum2Length,
+        mass: pendulum2Mass,
+        origin: pendulum1.endPoint,
+        vel: (i / 10000),
+        acc: 0,
+      );
+      allDoublePendulums.add([pendulum1, pendulum2]);
     }
-    return PendulumManager._(
-        allDoublePendulums: allDoublePendulums,
-        origin: origin,
-        pendulum1Length: pendulum1Length,
-        pendulum1Mass: pendulum1Mass,
-        pendulum2Length: pendulum2Length,
-        pendulum2Mass: pendulum2Mass,
-        noOfDoublePendulums: noOfDoublePendulums);
   }
 
-  void reEstimatePostions() {
-    temp += 0.01;
-    this.allDoublePendulums.forEach((List<PendulumDrawInfo> element) {
-      element[0].end += Offset(temp, temp);
-      element[1].origin += Offset(temp, temp);
-      element[1].end += Offset(temp, temp);
+  void reEstimateAngles() {
+    allDoublePendulums.forEach((List<PendulumInfo> pendulums) {
+      pendulums[0].vel += _simulatedAnglePendulum1(pendulums);
+      pendulums[1].vel += _simulatedAnglePendulum2(pendulums);
+      pendulums[0].angle += pendulums[0].vel;
+      pendulums[1].angle += pendulums[1].vel;
+      pendulums[1].origin = pendulums[0].endPoint;
+      pendulums[1].trailPoints.add(pendulums[1].endPoint);
+      if (pendulums[1].trailPoints.length > 50)
+        pendulums[1].trailPoints.removeAt(0);
     });
   }
 
-  List<List<PendulumDrawInfo>> get allPendudlums => allDoublePendulums;
+  double _simulatedAnglePendulum1(List<PendulumInfo> pendulums) {
+    PendulumInfo p1 = pendulums[0];
+    PendulumInfo p2 = pendulums[1];
+
+    double part1 = -gravity * (2 * p1.mass + p2.mass) * sin(p1.angle) -
+        p2.mass * gravity * sin(p1.angle - 2 * p2.angle);
+
+    double part2 = 2 *
+        sin(p1.angle - p2.angle) *
+        p2.mass *
+        (pow(p2.vel, 2) * p2.length +
+            pow(p1.vel, 2) * p1.length * cos(p1.angle - p2.angle));
+
+    double denominator = p1.length *
+        (2 * p1.mass + p2.mass - p2.mass * cos(2 * p1.angle - 2 * p2.angle));
+
+    return (part1 - part2) / denominator;
+  }
+
+  double _simulatedAnglePendulum2(List<PendulumInfo> pendulums) {
+    PendulumInfo p1 = pendulums[0];
+    PendulumInfo p2 = pendulums[1];
+    double part1 = 2 *
+        sin(p1.angle - p2.angle) *
+        (p1.vel * p1.vel * p1.length * (p1.mass + p2.mass) +
+            gravity * (p1.mass + p2.mass) * cos(p1.angle) +
+            p2.vel * p2.vel * p2.length * p2.mass * cos(p1.angle - p2.angle));
+    double denominator = p2.length *
+        (2 * p1.mass + p2.mass - p2.mass * cos(2 * p1.angle - 2 * p2.angle));
+
+    return part1 / denominator;
+  }
+
+  List<List<PendulumInfo>> get allPendudlums => allDoublePendulums;
 }
 
-class PendulumDrawInfo {
-  Offset origin, end;
-  double radius;
-  PendulumDrawInfo(this.origin, this.end, this.radius);
+class PendulumInfo {
+  double length;
+  double mass;
+  double angle;
+  Color paintColor = Color(Random().nextInt(0xffffffff));
+
+  Offset origin;
+  List<Offset> trailPoints = [];
+
+  /// Velocity
+  double vel;
+
+  /// acceleration
+  double acc;
+
+  PendulumInfo(
+      {this.length,
+      this.mass,
+      this.angle,
+      this.origin,
+      this.vel = 1,
+      this.acc = 1});
+
+  Offset get endPoint =>
+      Offset((length * sin(angle)), (length * cos(angle))) + origin;
 
   @override
-  String toString() {
-    return "Pendulum with origin: $origin and end: $end and radius as $radius";
-  }
+  toString() => 'Pendulum has end point at $endPoint';
 }
