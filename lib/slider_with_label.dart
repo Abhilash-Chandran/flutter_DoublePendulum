@@ -38,7 +38,6 @@ class _SliderWithLabelState extends State<SliderWithLabel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Divider(),
         Padding(
           padding: const EdgeInsets.only(left: 24.0),
           child: Text(

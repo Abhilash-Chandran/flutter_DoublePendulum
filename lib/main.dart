@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'slider_with_label.dart';
 import 'pendulum_info.dart';
 
@@ -37,7 +38,7 @@ class _DoublePendulumState extends State<DoublePendulum>
   AnimationController _animationController;
 
   PendulumSimulationManager pendulumManager;
-
+  ScrollController _controller = new ScrollController();
   double noOfPendulums = 5;
   double gravity = 9.8;
   double pendulum1Length = 100;
@@ -90,7 +91,7 @@ class _DoublePendulumState extends State<DoublePendulum>
           ),
         ),
         Container(
-          width: avlblSize.width / 4,
+          width: avlblSize.width >= 600 ? avlblSize.width / 4 : avlblSize.width,
           alignment: Alignment.topLeft,
           child: Card(
             child: ExpansionTile(
@@ -98,7 +99,9 @@ class _DoublePendulumState extends State<DoublePendulum>
               initiallyExpanded: true,
               children: <Widget>[
                 ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
                   shrinkWrap: true,
+                  controller: _controller,
                   children: <Widget>[
                     SliderWithLabel(
                       widgetLabel: 'Pendulums : ',
