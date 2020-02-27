@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'slider_with_label.dart';
+import 'pendulum_info.dart';
 
 void main() => runApp(MyApp());
 
@@ -18,67 +20,6 @@ class MyApp extends StatelessWidget {
           animationDuration: Duration(seconds: 1),
         ),
       ),
-    );
-  }
-}
-
-typedef Callback = void Function(double newValue);
-
-class SliderWithLabel extends StatefulWidget {
-  final String widgetLabel;
-  final int division;
-  final double min;
-  final double max;
-  final Callback callBack;
-  final int showNDecimal;
-  final double initialValue;
-
-  SliderWithLabel({
-    this.widgetLabel,
-    this.division,
-    @required this.min,
-    @required this.max,
-    @required this.callBack,
-    @required this.initialValue,
-    this.showNDecimal = 1,
-  });
-
-  @override
-  _SliderWithLabelState createState() => _SliderWithLabelState();
-}
-
-class _SliderWithLabelState extends State<SliderWithLabel> {
-  double value;
-  @override
-  void initState() {
-    super.initState();
-    value = widget.initialValue;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Divider(),
-        Padding(
-          padding: const EdgeInsets.only(left: 24.0),
-          child: Text(
-              widget.widgetLabel + value.toStringAsFixed(widget.showNDecimal)),
-        ),
-        Slider(
-            label: value.toStringAsFixed(widget.showNDecimal),
-            divisions: widget.division,
-            value: value,
-            min: widget.min,
-            max: widget.max,
-            onChanged: (newValue) {
-              setState(() {
-                value = newValue;
-                widget.callBack(newValue);
-              });
-            }),
-      ],
     );
   }
 }
@@ -101,10 +42,10 @@ class _DoublePendulumState extends State<DoublePendulum>
   double gravity = 9.8;
   double pendulum1Length = 100;
   double pendulum2Length = 100;
-  double pendulum1Mass = 6;
+  double pendulum1Mass = 7;
   double pendulum2Mass = 3;
-  double pendulum1Angle = 45;
-  double pendulum2Angle = 22.5;
+  double pendulum1Angle = 90;
+  double pendulum2Angle = 90;
   bool showMenu = true;
   @override
   void initState() {
@@ -156,96 +97,101 @@ class _DoublePendulumState extends State<DoublePendulum>
               title: Text('Settings'),
               initiallyExpanded: true,
               children: <Widget>[
-                SliderWithLabel(
-                  widgetLabel: 'Pendulums : ',
-                  min: 1,
-                  max: 50,
-                  showNDecimal: 0,
-                  callBack: (double value) {
-                    setState(() {
-                      noOfPendulums = value;
-                    });
-                  },
-                  division: 50,
-                  initialValue: noOfPendulums,
-                ),
-                SliderWithLabel(
-                  widgetLabel: 'Gravity : ',
-                  min: 1,
-                  max: 20,
-                  callBack: (double value) {
-                    setState(() {
-                      gravity = value;
-                    });
-                  },
-                  initialValue: gravity,
-                ),
-                SliderWithLabel(
-                  widgetLabel: 'Pendulum-1 Length : ',
-                  min: 1,
-                  max: 200,
-                  callBack: (double value) {
-                    setState(() {
-                      pendulum1Length = value;
-                    });
-                  },
-                  initialValue: pendulum1Length,
-                ),
-                SliderWithLabel(
-                  widgetLabel: 'Pendulum-2 Length : ',
-                  min: 1,
-                  max: 200,
-                  callBack: (double value) {
-                    setState(() {
-                      pendulum2Length = value;
-                    });
-                  },
-                  initialValue: pendulum2Length,
-                ),
-                SliderWithLabel(
-                  widgetLabel: 'Pendulum-1 Mass : ',
-                  min: 0.01,
-                  max: 10,
-                  callBack: (double value) {
-                    setState(() {
-                      pendulum1Mass = value;
-                    });
-                  },
-                  initialValue: pendulum1Mass,
-                ),
-                SliderWithLabel(
-                  widgetLabel: 'Pendulum-2 Mass : ',
-                  min: 0.01,
-                  max: 10,
-                  callBack: (double value) {
-                    setState(() {
-                      pendulum2Mass = value;
-                    });
-                  },
-                  initialValue: pendulum2Mass,
-                ),
-                SliderWithLabel(
-                  widgetLabel: 'Pendulum-1 Angle : ',
-                  min: 0,
-                  max: 360,
-                  callBack: (double value) {
-                    setState(() {
-                      pendulum1Angle = value;
-                    });
-                  },
-                  initialValue: pendulum1Angle,
-                ),
-                SliderWithLabel(
-                  widgetLabel: 'Pendulum-2 Angle : ',
-                  min: 0,
-                  max: 360,
-                  callBack: (double value) {
-                    setState(() {
-                      pendulum2Angle = value;
-                    });
-                  },
-                  initialValue: pendulum2Angle,
-                ),
+                ListView(
+                  shrinkWrap: true,
+                  children: <Widget>[
+                    SliderWithLabel(
+                      widgetLabel: 'Pendulums : ',
+                      min: 1,
+                      max: 50,
+                      showNDecimal: 0,
+                      callBack: (double value) {
+                        setState(() {
+                          noOfPendulums = value;
+                        });
+                      },
+                      division: 50,
+                      initialValue: noOfPendulums,
+                    ),
+                    SliderWithLabel(
+                      widgetLabel: 'Gravity : ',
+                      min: 1,
+                      max: 20,
+                      callBack: (double value) {
+                        setState(() {
+                          gravity = value;
+                        });
+                      },
+                      initialValue: gravity,
+                    ),
+                    SliderWithLabel(
+                      widgetLabel: 'Pendulum-1 Length : ',
+                      min: 1,
+                      max: 200,
+                      callBack: (double value) {
+                        setState(() {
+                          pendulum1Length = value;
+                        });
+                      },
+                      initialValue: pendulum1Length,
+                    ),
+                    SliderWithLabel(
+                      widgetLabel: 'Pendulum-2 Length : ',
+                      min: 1,
+                      max: 200,
+                      callBack: (double value) {
+                        setState(() {
+                          pendulum2Length = value;
+                        });
+                      },
+                      initialValue: pendulum2Length,
+                    ),
+                    SliderWithLabel(
+                      widgetLabel: 'Pendulum-1 Mass : ',
+                      min: 0.01,
+                      max: 10,
+                      callBack: (double value) {
+                        setState(() {
+                          pendulum1Mass = value;
+                        });
+                      },
+                      initialValue: pendulum1Mass,
+                    ),
+                    SliderWithLabel(
+                      widgetLabel: 'Pendulum-2 Mass : ',
+                      min: 0.01,
+                      max: 10,
+                      callBack: (double value) {
+                        setState(() {
+                          pendulum2Mass = value;
+                        });
+                      },
+                      initialValue: pendulum2Mass,
+                    ),
+                    SliderWithLabel(
+                      widgetLabel: 'Pendulum-1 Angle : ',
+                      min: 0,
+                      max: 360,
+                      callBack: (double value) {
+                        setState(() {
+                          pendulum1Angle = value;
+                        });
+                      },
+                      initialValue: pendulum1Angle,
+                    ),
+                    SliderWithLabel(
+                      widgetLabel: 'Pendulum-2 Angle : ',
+                      min: 0,
+                      max: 360,
+                      callBack: (double value) {
+                        setState(() {
+                          pendulum2Angle = value;
+                        });
+                      },
+                      initialValue: pendulum2Angle,
+                    ),
+                  ],
+                )
               ],
             ),
           ),
@@ -330,7 +276,7 @@ class PendulumSimulationManager {
   void initializePendulums() {
     for (int i = 0; i < noOfDoublePendulums; i++) {
       PendulumInfo pendulum1 = PendulumInfo(
-        angle: pendulum1Angle,
+        angle: pendulum1Angle + (i * 0.0174533),
         length: pendulum1Length,
         mass: pendulum1Mass,
         origin: Offset.zero,
@@ -338,7 +284,7 @@ class PendulumSimulationManager {
         acc: 0,
       );
       PendulumInfo pendulum2 = PendulumInfo(
-        angle: pendulum2Angle + (i * 0.0174533),
+        angle: pendulum2Angle,
         length: pendulum2Length,
         mass: pendulum2Mass,
         origin: pendulum1.endPoint,
@@ -396,34 +342,4 @@ class PendulumSimulationManager {
   }
 
   List<List<PendulumInfo>> get allPendudlums => allDoublePendulums;
-}
-
-class PendulumInfo {
-  double length;
-  double mass;
-  double angle;
-  Color paintColor = Color(Random().nextInt(0xffffffff));
-
-  Offset origin;
-  List<Offset> trailPoints = [];
-
-  /// Velocity
-  double vel;
-
-  /// acceleration
-  double acc;
-
-  PendulumInfo(
-      {this.length,
-      this.mass,
-      this.angle,
-      this.origin,
-      this.vel = 1,
-      this.acc = 1});
-
-  Offset get endPoint =>
-      Offset((length * sin(angle)), (length * cos(angle))) + origin;
-
-  @override
-  toString() => 'Pendulum has end point at $endPoint';
 }
