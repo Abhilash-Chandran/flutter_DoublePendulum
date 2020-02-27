@@ -38,7 +38,6 @@ class _DoublePendulumState extends State<DoublePendulum>
   AnimationController _animationController;
 
   PendulumSimulationManager pendulumManager;
-  ScrollController _controller = new ScrollController();
   double noOfPendulums = 5;
   double gravity = 9.8;
   double pendulum1Length = 100;
@@ -99,9 +98,7 @@ class _DoublePendulumState extends State<DoublePendulum>
               initiallyExpanded: true,
               children: <Widget>[
                 ListView(
-                  physics: AlwaysScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  controller: _controller,
                   children: <Widget>[
                     SliderWithLabel(
                       widgetLabel: 'Pendulums : ',
