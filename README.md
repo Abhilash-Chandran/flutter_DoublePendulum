@@ -1,6 +1,24 @@
 # double_pendulum
 
-A new Flutter project.
+A flutter project to simulate double pendulum using Custom Paint widget.
+
+## How it looks like
+
+![Gif of the simulation](./flutter_double_pendulum_demo.gif)
+
+## Major inspiration
+
+https://observablehq.com/@travisdoesmath/double-pendulums-are-chaotic
+
+### Main Reference
+
+https://www.youtube.com/watch?v=uWzPe_S-RVE
+https://www.myphysicslab.com/pendulum/double-pendulum-en.html
+
+## Note of Caution
+
+This physics used is not in correct scale and might differ from correct results.
+This is more of fun project to test Custom Painter.
 
 ## Getting Started
 
