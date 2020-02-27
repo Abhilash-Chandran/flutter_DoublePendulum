@@ -10,8 +10,6 @@ A flutter project to simulate double pendulum using Custom Paint widget.
 
 https://dartpad.dev/0f44a277acdeaacfbf3d86e9b1405756
 
-<iframe src="https://dartpad.dev/embed-inline.html?id=0f44a277acdeaacfbf3d86e9b1405756&split=20&theme=dark"></iframe>
-
 ## Major inspiration
 
 https://observablehq.com/@travisdoesmath/double-pendulums-are-chaotic
