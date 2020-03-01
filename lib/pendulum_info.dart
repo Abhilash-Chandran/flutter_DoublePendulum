@@ -5,23 +5,24 @@ class PendulumInfo {
   double length;
   double mass;
   double angle;
-  Color paintColor = Color(Random().nextInt(0xffffffff));
 
-  Offset origin;
-  List<Offset> trailPoints = [];
-
-  /// Velocity
-  double vel;
+  ///Angular Velocity
+  double angularVel;
 
   /// acceleration
   double acc;
+
+  // Canvas related
+  Color paintColor = Color(Random().nextInt(0xffffffff));
+  Offset origin;
+  List<Offset> trailPoints = [];
 
   PendulumInfo(
       {this.length,
       this.mass,
       this.angle,
       this.origin,
-      this.vel = 1,
+      this.angularVel = 1,
       this.acc = 1});
 
   Offset get endPoint =>

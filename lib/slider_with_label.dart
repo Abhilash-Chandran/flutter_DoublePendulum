@@ -35,27 +35,26 @@ class _SliderWithLabelState extends State<SliderWithLabel> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(left: 24.0),
-          child: Text(
-              widget.widgetLabel + value.toStringAsFixed(widget.showNDecimal)),
-        ),
-        Slider(
-            label: value.toStringAsFixed(widget.showNDecimal),
-            divisions: widget.division,
-            value: value,
-            min: widget.min,
-            max: widget.max,
-            onChanged: (newValue) {
-              setState(() {
-                value = newValue;
-                widget.callBack(newValue);
-              });
-            }),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Text(widget.widgetLabel + value.toStringAsFixed(widget.showNDecimal)),
+          Slider(
+              divisions: widget.division,
+              value: value,
+              min: widget.min,
+              max: widget.max,
+              onChanged: (newValue) {
+                setState(() {
+                  value = newValue;
+                  widget.callBack(newValue);
+                });
+              }),
+        ],
+      ),
     );
   }
 }
